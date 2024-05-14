@@ -1,4 +1,4 @@
-**Projeto: Sistema Bancário em Python**
+# Projeto: Sistema Bancário em Python
 
 **Descrição:**
 Este projeto visa criar um Sistema Bancário em Python, com foco na implementação de três operações essenciais: depósito, saque e extrato. O sistema será desenvolvido para um banco fictício que busca automatizar e monetizar suas operações.
