@@ -1,11 +1,11 @@
-sacar=0
-depositar=0
-visualizar_Extrato =""
+saldo=2000
+saque=0
+deposito= 0
 opcao = -1
+lista_Saque =[]
+lista_Deposito=[]
+extrato =[]
 
-
-#exibe quais função voce quer realizar
-opcao = -1  # Definindo uma opção inicial inválida para entrar no loop
 
 print(
 """
@@ -31,18 +31,28 @@ while opcao != 0:
     opcao = int(input("Escolha uma opção: "))
 
     if opcao == 1:
+        saque =int(input("Qual a quantia deseja sacar: "))
+        saldo -= saque
+        #ao realizar a ação a variavel lista_Saque armazena ação em uma lista
+        lista_Saque.append(saque)
         print('Saque realizado.')
+
     elif opcao == 2:
-        print('Exibindo depositar.')
+        deposito =int(input("Qual a quantia deseja depositar: "))
+        saldo += deposito
+        lista_Deposito.append(deposito)
+        print('Deposito Realizado.')
+
+      
     elif opcao == 3:
-        print('Exibindo extrato.')
+        print(f"Esses foram os saques realizados: {lista_Saque}")
+        print(f"Esses foram os saques realizados: {lista_Deposito}")
+
+    elif opcao == 0:
+        print('Operação finalizada.')
     elif opcao != 0:
         print("Opção inválida. Por favor, escolha novamente.")
 
 print("Obrigado por usar nosso sistema bancário. Até logo!")
 
-#processa sua entrada
-#retorna algo na tela
-#
-#
-#
+
