@@ -20,76 +20,71 @@ class Banco:
         return nova_conta
 
 class Cliente:
-    def __init__(self, nome, cpf,data_nascimento,endereço):
+    def __init__(self, nome, cpf,data_nascimento,endereco):
         self.nome = nome
         self.cpf = cpf
         self.contas = []
         self.data_nascimento = data_nascimento
-        self.endereço = endereço
+        self.endereço =  str(endereco)
 
     def formatar_cpf(self, cpf):
         return ''.join(filter(str.isdigit, cpf))
 
-    def adicionar_conta(self, conta):
+    def adicionar_conta(self,conta):
         self.contas.append(conta)
-
-class Conta:
+        return
+        #ao não colocar o return aqui ele não me confirmou se existia alguém com o cpf já cadastrado
+class Conta: #conta corrente
+    
     def __init__(self, cliente):
         self.cliente = cliente
         self.saldo = 0.0
         self.transacoes = []
+        self.lista_saque = []
+        self.lista_deposito = []
+        self.max_saques = 3
+        self.contador_saques = 0
+        self.numero = Conta.numero_sequencial
+        Conta.numero_sequencial += 1
+        self.agencia = "0001"
 
-    def saque(saldo, max_saques, lista_saque, contador_saques):
-        if saldo <= 0:
+    def saque(self):
+        if self.saldo <= 0:
             print("Você não possui saldo suficiente.")
-            return saldo, lista_saque, contador_saques
+            return
         
         saque = int(input("Qual a quantia deseja sacar: "))
         
         if saque > 500:
             print("O valor máximo de saque é 500. Operação cancelada.")
-            return saldo, lista_saque, contador_saques
+            return 
         
-        if contador_saques >= max_saques:
+        if  self.contador_saques >= self.max_saques:
             print("Você atingiu o limite máximo de saques permitidos. Operação cancelada.")
-            return saldo, lista_saque, contador_saques
+            return 
         
-        if saque > saldo:
+        if saque > self.saldo :
             print("Saldo insuficiente para realizar o saque. Operação cancelada.")
-            return saldo, lista_saque, contador_saques
+            return
         
-        saldo -= saque
-        contador_saques += 1
-        lista_saque.append(saque)
-        print(f"Saque de {saque} realizado com sucesso!")
+        self.saldo -= saque
+        self.contador_saques += 1
+        self.lista_saque.append(saque)
+        print(f"Saque de {saque} realizado com sucesso!")  
         
-        return saldo, lista_saque, contador_saques
-        
-    def deposito(saldo, lista_deposito):
-        """
-        Realiza um depósito em uma conta bancária.
-
-        Parâmetros:
-        saldo (float): O saldo atual da conta.
-        lista_deposito (list): A lista de depósitos realizados.
-
-        Retorna:
-        tuple: O saldo atualizado e a lista de depósitos.
-        """
+    def deposito(self):
         try:
             deposito = int(input("Qual a quantia deseja depositar: "))
             if deposito > 0:
-                saldo += deposito
-                lista_deposito.append(deposito)
+                self.saldo += deposito
+                self.lista_deposito.append(deposito)
                 print('Depósito realizado com sucesso!')
             else:
                 print('O valor do depósito deve ser positivo.')
         except ValueError:
             print('Por favor, insira um valor numérico válido.')
             
-        return saldo, lista_deposito
-
-    def extrato(saldo, lista_saque, lista_deposito):
+    def extrato(self):
         def formatar_para_real(valor):
             return f"R${valor:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
 
@@ -105,7 +100,7 @@ class Conta:
         for i, deposito_formatado in enumerate(depositos_formatados, start=1):
             print(f"{i}º depósito: {deposito_formatado}")
 
-        print(f"Seu saldo atual é de {formatar_para_real(saldo)}\n")
+        print(f"Seu saldo atual é de {formatar_para_real(self.saldo)}\n")
 
 def menu():
     print("""
@@ -130,11 +125,19 @@ continuar.
 """)
 
 def sistema_bancario():
-    saldo = 2000
-    lista_saque = []
-    lista_deposito = []
-    contador_saques = 0
-    max_saques = 3
+    banco = Banco("Meu Banco")
+
+    # Inicializando o banco
+    banco = Banco("Meu Banco")
+
+    # Adicionando um cliente fictício para teste
+    cliente_ficticio = Cliente(
+        nome="Rodrigo", 
+        cpf="16924917763", 
+        data_nascimento="06/07/19999", 
+        endereco="Rua que não existe, 123"
+    )
+    banco.adicionar_cliente(cliente_ficticio)
 
     menu()
 
@@ -142,34 +145,81 @@ def sistema_bancario():
         try:
             operacao = int(input("Digite o número da operação: "))
 
-            if operacao == '1':
+            if operacao == 1:
                 nome = input("Nome do cliente: ")
-                cpf = input("CPF do cliente (apenas números): ")
-                endereco = input("Endereço do cliente (logradouro, nro - bairro - cidade/sigla estado): ")
-                cliente = Cliente(nome, cpf, endereco)
-                if Banco.adicionar_cliente(cliente):
-                    print("Cliente adicionado com sucesso.")
+                #verificação da entrada CPF
+                while True:
+                    cpf = input("CPF do cliente (apenas números): ")
+                    if cpf.isdigit() and len(cpf) == 11:
+                        break
+                    else:
+                        print("Entrada inválida! Por favor, digite apenas números e que seja um CPF válido com 11 dígitos.")
+                data_nascimento = input("Data de nascimento do cliente (DD/MM/AAAA): ")
+                logradouro = input("Informe o logradouro (Rua, Avenida, etc.): ")
+                numero = input("Número: ")
+                bairro = input("Bairro: ")
+                cidade = input("Cidade: ")
+                estado = input("Estado (sigla): ")
 
-            elif operacao == '2':
+                # Função para formatar o endereço
+                def formatar_endereco(logradouro, numero, bairro, cidade, estado):
+                    endereco_formatado = f"{logradouro}, {numero} - {bairro} - {cidade}/{estado}"
+                    return endereco_formatado
+                # Formatando o endereço conforme especificação
+                endereco_formatado = formatar_endereco(logradouro, numero, bairro, cidade, estado)
+                
+                print(f"{endereco_formatado}")
+
+                # Criando um objeto Cliente com os dados fornecidos
+                cliente = Cliente(nome, cpf,data_nascimento, endereco_formatado)
+               
+                # Adicionando o cliente ao banco
+                if banco.adicionar_cliente(cliente):
+                    print("Cliente adicionado com sucesso.")
+                else:
+                    print("Não foi possível adicionar o cliente. CPF já cadastrado.")
+
+            elif operacao == 2:
                 cpf = input("CPF do cliente (apenas números): ")
-                cliente = next((c for c in Banco.clientes if c.cpf == cpf), None)
+                # Procura pelo cliente na lista de clientes do banco usando compreensão de lista
+                cliente = next((c for c in banco.clientes if c.cpf == cpf), None)
                 if cliente:
-                    conta = Banco.criar_conta(cliente)
+                    conta = banco.criar_conta(cliente)
                     print("Conta criada com sucesso.")
                 else:
                     print("Cliente não encontrado.")
-                
-            if operacao == 3:
-                saldo, lista_saque, contador_saques = saque(saldo, max_saques, lista_saque, contador_saques)
+        
+        # Operação Saque   
+            elif operacao == 3: 
+                cpf = input("CPF do cliente (apenas números): ")
+                cliente = next((c for c in banco.clientes if c.cpf == cpf), None)
+                if cliente:
+                    conta = cliente.contas[0]  # Assumindo que o cliente possui pelo menos uma conta
+                    conta.saque()
+                else:
+                    print("Cliente não encontrado.")
+        # Operação Deposito
             elif operacao == 4:
-                saldo, lista_deposito = deposito(saldo, lista_deposito)
+                cpf = input("CPF do cliente (apenas números): ")
+                cliente = next((c for c in banco.clientes if c.cpf == cpf), None)
+                if cliente:
+                    conta = cliente.contas[0]  # Assumindo que o cliente possui pelo menos uma conta
+                    conta.deposito()
+                else:
+                    print("Cliente não encontrado.")
+        # Operação Extrato  
             elif operacao == 5:
-                extrato(saldo, lista_saque, lista_deposito)
+                cpf = input("CPF do cliente (apenas números): ")
+                cliente = next((c for c in banco.clientes if c.cpf == cpf), None)
+                if cliente:
+                    conta = cliente.contas[0]  # Assumindo que o cliente possui pelo menos uma conta
+                    conta.extrato()
+                else:
+                    print("Cliente não encontrado.")
+
             elif operacao == 0:
                 print("Saindo do sistema. Até logo!")
                 break
-            else:
-                print("Operação inválida. Tente novamente.")
         except ValueError:
             print("Por favor, insira um número válido.")
         print()
